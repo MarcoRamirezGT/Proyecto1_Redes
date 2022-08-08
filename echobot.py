@@ -1,4 +1,4 @@
-from sqlite3 import Timestamp
+
 from slixmpp.xmlstream import ElementBase, ET, JID, register_stanza_plugin
 from slixmpp import Iq
 import socket
@@ -10,6 +10,19 @@ from argparse import ArgumentParser
 import logging
 
 import slixmpp
+
+s = socket.socket()
+    
+    
+print("Socket successfully created")
+
+port = 12345
+
+s.bind(('', port))
+print("socket binded to %s" % (port))
+s.listen(5)
+print("socket is listening")
+c, addr = s.accept()
 
 
 class EchoBot(slixmpp.ClientXMPP):
@@ -44,6 +57,8 @@ class EchoBot(slixmpp.ClientXMPP):
             print("From: ", msg["from"])
             print("Subject: ", msg["subject"])
             print("Message: ", msg["body"])
+            result='Mensaje enviado exitosamente'
+            c.send(msg["body"].encode())
             #msg.reply("Thanks for sending\n%(body)s" % msg).send()
             
     # Register management function using sleek exceptions
@@ -94,17 +109,6 @@ def initialMenu():
     print("2. Sign in")
     print("-------------------------------------------------")
 
-# Logged in user menu function
-def userMenu():
-    print("1. Show other users")
-    print("2. Send message to a specific user")
-    print("3. Add new user")
-    print("4. Group message")
-    print("5. Show other users information")
-    print("6. My personal message")
-    print("7. Log off")
-    print("8. Delete my account")
-    print("Enter Back to go to the last page")
 
 if __name__ == '__main__':
     
@@ -143,45 +147,27 @@ if __name__ == '__main__':
     xmpp.register_plugin('xep_0004') # Data Forms
     xmpp.register_plugin('xep_0060') # PubSub
     xmpp.register_plugin('xep_0199') # XMPP Ping
+    xmpp.register_plugin('xep_0100') # XMPP Add contact
    # xmpp.connect()
-    s = socket.socket()
-
-    print("Socket successfully created")
-
-    port = 12345
-
-    s.bind(('', port))
-    print("socket binded to %s" % (port))
-    s.listen(5)
-    print("socket is listening")
-    c, addr = s.accept()
     
     while True:
         
         xmpp.connect()
         
 
-        data = c.recv(1024)
-        data=pickle.loads(data)
+        info = c.recv(1024)
+        data=pickle.loads(info)
+       
         loggedIn_option=data['opcion']
         
-        # data = codecs.encode(pickle.dumps(data), "hex").decode()
-        #loggedIn_option = pickle.loads(data)
         print("Recibido: ", data)
-        
-        # data = codecs.encode(pickle.dumps(data), "hex").decode()
-       # loggedIn_option = pickle.loads(data)
-        #print("Recibido: ", loggedIn_option)
-        
-        # To get all the users joined to the chat
-        
+       
         if(loggedIn_option == "1"):
             xmpp.process(timeout=10)
             print("\nContactos:\n")
             
             contacts = xmpp.client_roster
-            while (len(contacts)==0):
-                xmpp.process(timeout=10)
+            
             print(contacts.keys())
             data=contacts.keys()
             resu=[]
@@ -194,35 +180,36 @@ if __name__ == '__main__':
             
             result=' '.join(resu)
             c.send(result.encode())
-            c.close()
-            xmpp.process(0)
-            
-            
+          
 
-        # Send a message to a specific user 
-        elif(loggedIn_option == "2"):
+        if(loggedIn_option == "2"):
             
-            # xmpp.process(timeout=10)
-            # 
-            # xmpp.send_message(mto= user, mbody = message, mtype = 'chat')
-            # print("Tu mensaje ha sido enviado")
-            # xmpp.process(timeout=15)
-            print ('opcion 2')
+            xmpp.process(timeout=10)
+            to=data['to']
+            msg=data['msg']  
+            result='Mensaje enviado exitosamente'
+            c.send(result.encode())          
+            xmpp.send_message(mto= to, mbody = msg, mtype = 'chat')
+            xmpp.process(timeout=10)
 
-        # Add a new user
+        # Add a new users
         elif(loggedIn_option == "3"):
-            xmpp.process(timeout=10)
-            user = input("A quien quieres agregar: ")
-            xmpp.send_presence(pto = user, ptype ='subscribe')
-            xmpp.process(timeout=10)
+            xmpp.process(timeout=15)
+            to=data['to']
+            
+            xmpp.send_presence(pfrom=args.jid, ptype="subscribed", pto=to)
+            xmpp.process(timeout=15)
         
         # # Send a group message    
         # elif(loggedIn_option == "4"):
         #     print("Option not implemented in this version")
 
-        # # Show other user information   
-        # elif(loggedIn_option == "5"):
-        #     print("Option not implemented in this version")
+        # Show other user information   
+        if (loggedIn_option == "5"):
+            xmpp.process()
+            xmpp.message()
+              
+            
 
         # Set personal message    
         elif(loggedIn_option == "6"):
