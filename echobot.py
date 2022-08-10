@@ -8,33 +8,23 @@ from slixmpp.exceptions import IqError, IqTimeout
 from getpass import getpass
 from argparse import ArgumentParser
 import logging
+import asyncio
 
 import slixmpp
 
-s = socket.socket()
-    
-    
-print("Socket successfully created")
-
-port = 12345
-
-s.bind(('', port))
-print("socket binded to %s" % (port))
-s.listen(5)
-print("socket is listening")
-c, addr = s.accept()
+asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
 class EchoBot(slixmpp.ClientXMPP):
 
-    def __init__(self, jid, password,option):
+    def __init__(self, jid, password, option):
         slixmpp.ClientXMPP.__init__(self, jid, password)
-        
-        if option=='1':
+
+        if option == '1':
             self.add_event_handler("session_start", self.start)
             self.add_event_handler("inicio", self.start)
-           
-        elif option=='2':
+
+        elif option == '2':
             self.add_event_handler("register", self.register)
             self.add_event_handler("session_start", self.sessionStart)
         else:
@@ -46,21 +36,20 @@ class EchoBot(slixmpp.ClientXMPP):
         self.register_plugin("xep_0047", {"auto_accept": True})
 
     async def start(self, event):
-        
+
         self.send_presence()
         await self.get_roster()
-        
-    
+
     def message(self, msg):
-       
+
         if msg['type'] in ('chat', 'normal'):
             print("From: ", msg["from"])
             print("Subject: ", msg["subject"])
             print("Message: ", msg["body"])
-            result='Mensaje enviado exitosamente'
-            c.send(msg["body"].encode())
+            result = 'Mensaje enviado exitosamente'
+            # c.send(msg["body"].encode())
             #msg.reply("Thanks for sending\n%(body)s" % msg).send()
-            
+
     # Register management function using sleek exceptions
     def register(self, iq):
         serverResponse = self.Iq()
@@ -73,14 +62,15 @@ class EchoBot(slixmpp.ClientXMPP):
             logging.info("Account created!: %s!" % self.boundjid)
         except IqError as e:
             logging.error("It was imposible to create the account: %s" %
-                    e.iq["error"]["text"])
+                          e.iq["error"]["text"])
             self.disconnect()
         except IqTimeout:
-            logging.error("Server response took longer than wanted, try again.")
+            logging.error(
+                "Server response took longer than wanted, try again.")
             self.disconnect()
-            
-    
+
     # Delete account management function using sleek exceptions
+
     def deleteAccount(self):
         serverResponse = self.Iq()
         serverResponse["type"] = "set"
@@ -93,15 +83,16 @@ class EchoBot(slixmpp.ClientXMPP):
             logging.info("Account deleted %s!" % self.boundjid)
         except IqError as e:
             logging.error("It was imposible to delete the account: %s" %
-                    e.iq["error"]["text"])
+                          e.iq["error"]["text"])
             self.disconnect()
         except IqTimeout:
-            logging.error("Server response took longer than wanted, try again.")
+            logging.error(
+                "Server response took longer than wanted, try again.")
             self.disconnect()
 
 
 def initialMenu():
-    
+
     print("-------------------------------------------------")
     print("           Proyecto1!")
     print("Enter the number of your choice:")
@@ -111,10 +102,21 @@ def initialMenu():
 
 
 if __name__ == '__main__':
-    
-    
+
+    s = socket.socket()
+
+    print("Socket successfully created")
+
+    port = 12345
+
+    s.bind(('', port))
+    print("socket binded to %s" % (port))
+    s.listen(5)
+    print("socket is listening")
+    c, addr = s.accept()
+
     # initialMenu()
-    initialOption = '1'#input("What would you like to do? (1 or 2): ")
+    initialOption = '1'  # input("What would you like to do? (1 or 2): ")
     parser = ArgumentParser(description=EchoBot.__doc__)
 
     # Output verbosity options.
@@ -142,94 +144,89 @@ if __name__ == '__main__':
     if args.password is None:
         args.password = getpass("Password: ")
 
-    xmpp = EchoBot(args.jid, args.password,initialOption)
-    xmpp.register_plugin('xep_0030') # Service Discovery
-    xmpp.register_plugin('xep_0004') # Data Forms
-    xmpp.register_plugin('xep_0060') # PubSub
-    xmpp.register_plugin('xep_0199') # XMPP Ping
-    xmpp.register_plugin('xep_0100') # XMPP Add contact
+    xmpp = EchoBot(args.jid, args.password, initialOption)
+    xmpp.register_plugin('xep_0030')  # Service Discovery
+    xmpp.register_plugin('xep_0004')  # Data Forms
+    xmpp.register_plugin('xep_0060')  # PubSub
+    xmpp.register_plugin('xep_0199')  # XMPP Ping
+    xmpp.register_plugin('xep_0100')  # XMPP Add contact
    # xmpp.connect()
-    
+
     while True:
-        
+
         xmpp.connect()
-        
 
         info = c.recv(1024)
-        data=pickle.loads(info)
-       
-        loggedIn_option=data['opcion']
-        
+        data = pickle.loads(info)
+
+        loggedIn_option = data['opcion']
+
         print("Recibido: ", data)
-       
+
         if(loggedIn_option == "1"):
             xmpp.process(timeout=10)
             print("\nContactos:\n")
-            
+
             contacts = xmpp.client_roster
-            
+
             print(contacts.keys())
-            data=contacts.keys()
-            resu=[]
-            
-            
+            data = contacts.keys()
+            resu = []
+
             for key in contacts.keys():
                 resu.append(key)
-               
-                
-            
-            result=' '.join(resu)
+
+            result = ' '.join(resu)
             c.send(result.encode())
-          
 
         if(loggedIn_option == "2"):
-            
+
             xmpp.process(timeout=10)
-            to=data['to']
-            msg=data['msg']  
-            result='Mensaje enviado exitosamente'
-            c.send(result.encode())          
-            xmpp.send_message(mto= to, mbody = msg, mtype = 'chat')
+            to = data['to']
+            msg = data['msg']
+            result = 'Mensaje enviado exitosamente'
+            c.send(result.encode())
+            xmpp.send_message(mto=to, mbody=msg, mtype='chat')
             xmpp.process(timeout=10)
 
         # Add a new users
         elif(loggedIn_option == "3"):
-            xmpp.process(timeout=15)
-            to=data['to']
-            
-            xmpp.send_presence(pfrom=args.jid, ptype="subscribed", pto=to)
-            xmpp.process(timeout=15)
-        
-        # # Send a group message    
+
+            xmpp.process(timeout=20)
+            to = data['to']
+
+            xmpp.send_presence(pto=to, ptype=None,
+                               pstatus=None, pfrom=args.jid)
+            xmpp.process(timeout=20)
+
+        # # Send a group message
         # elif(loggedIn_option == "4"):
         #     print("Option not implemented in this version")
 
-        # Show other user information   
+        # Show other user information
         if (loggedIn_option == "5"):
             xmpp.process()
             xmpp.message()
-              
-            
 
-        # Set personal message    
+        # Set personal message
         elif(loggedIn_option == "6"):
             personal = input("Cual es tu mensaje personal: ")
             status = input("Cual es tu nueo estado: ")
             xmpp.makePresence(pfrom=xmpp.jid, pstatus=status, pshow=personal)
 
-        # Log Off    
+        # Log Off
         elif(loggedIn_option == "7"):
             print("Logged Off")
             xmpp.disconnect()
-            break   
+            break
 
         # Delete my account
-        elif(loggedIn_option == "8"):   
+        elif(loggedIn_option == "8"):
             print("Account deleted")
             xmpp.deleteAccount()
             xmpp.disconnect()
 
         # Go back
-        elif(loggedIn_option == "Back"):   
+        elif(loggedIn_option == "Back"):
             print("Option not implemented in this version")
     c.close()
