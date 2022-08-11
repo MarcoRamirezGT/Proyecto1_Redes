@@ -18,19 +18,13 @@ asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 class EchoBot(slixmpp.ClientXMPP):
 
-    def __init__(self, jid, password, option):
+    def __init__(self, jid, password):
         slixmpp.ClientXMPP.__init__(self, jid, password)
 
-        if option == '1':
-            self.add_event_handler("session_start", self.start)
-            self.add_event_handler("inicio", self.start)
+        self.add_event_handler("session_start", self.start)
+        self.add_event_handler("inicio", self.start)
 
-        elif option == '2':
-            self.add_event_handler("register", self.register)
-            self.add_event_handler("session_start", self.sessionStart)
-        else:
-            print('Ingrese una opciona valida\n')
-         # For the users messages
+        # For the users messages
         self.add_event_handler("message", self.message)
         self.add_event_handler("deleteAccount", self.deleteAccount)
 
@@ -102,8 +96,6 @@ def initialMenu():
 
 if __name__ == '__main__':
 
-    # initialMenu()
-    initialOption = '1'  # input("What would you like to do? (1 or 2): ")
     parser = ArgumentParser(description=EchoBot.__doc__)
 
     # Output verbosity options.
@@ -131,7 +123,7 @@ if __name__ == '__main__':
     if args.password is None:
         args.password = getpass("Password: ")
 
-    xmpp = EchoBot(args.jid, args.password, initialOption)
+    xmpp = EchoBot(args.jid, args.password)
 
     xmpp.register_plugin('xep_0030')  # Service Discovery
     xmpp.register_plugin('xep_0004')  # Data Forms
@@ -183,7 +175,7 @@ if __name__ == '__main__':
             msg = data['msg']
             result = 'Mensaje enviado exitosamente'
             c.send(result.encode())
-            xmpp.message()
+
             xmpp.send_message(mto=to, mbody=msg, mtype='chat')
             xmpp.process(timeout=20)
 
