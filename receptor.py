@@ -1,5 +1,6 @@
 import socket
 import pickle
+import sys
 s = socket.socket()
 
 
@@ -24,7 +25,7 @@ s.connect(('127.0.0.1', port))
 while True:
 
     userMenu()
-    loggedIn_option = input("Que quieres hacer?: ")
+    loggedIn_option = input("\nQue quieres hacer?: ")
     # data_send = pickle.dumps(loggedIn_option)
   #  loggedIn_option=pickle.dumps(loggedIn_option)
     if loggedIn_option == '1':
@@ -32,7 +33,7 @@ while True:
 
         s.send(data)
         print('\n')
-        print("Lista de usuarios:", s.recv(1024).decode())
+        print("Lista de usuarios:", s.recv(1024).decode(), '\n')
 
     if loggedIn_option == '2':
         to = input('A quien desea enviarle mensaje:\n')
@@ -54,6 +55,20 @@ while True:
         s.send(data)
         while True:
             print(s.recv(1024).decode())
+    if loggedIn_option == '7':
+        data = pickle.dumps({'opcion': '7'})
 
-    # , addr = c.accept()
-    # data = c.recv(1024)
+        try:
+            s.send(data)
+
+        except:
+            print('Se ha cerrado sesion\n')
+            sys.exit()
+    if loggedIn_option == '8':
+        data = pickle.dumps({'opcion': '8'})
+        try:
+            s.send(data)
+
+        except:
+            print('Se ha borrado la cuenta\n')
+            sys.exit()
