@@ -10,7 +10,7 @@ def userMenu():
     print("2. Mensaje privado")
     print("3. Agregar contacto")
     print("4. Mensaje grupal")
-    print("5. Informacion de otros usuarios")
+    print("5. Mostrar detalles de contacto de un usuario")
     print("6. Cambiar estado")
     print("7. Cerrar Sesion")
     print("8. Borrar Cuenta")
@@ -50,11 +50,17 @@ while True:
 
         print("Usuario agregado!\n")
     if loggedIn_option == '5':
-        # to=input('A quien deseas agregar:\n')
-        data = pickle.dumps({'opcion': '5'})
+        contact = input('Cual contacto deseas ver:\n')
+        data = pickle.dumps({'opcion': '5', 'contact': contact})
         s.send(data)
-        while True:
-            print(s.recv(1024).decode())
+        print("\nDatos del contacto:\n", s.recv(1024).decode(), '\n')
+
+    if loggedIn_option == '6':
+        op = input('A cual estado deseas cambiar:\n')
+        data = pickle.dumps({'opcion': '6'})
+        s.send(data)
+        print(s.recv(1024).decode(), '\n')
+
     if loggedIn_option == '7':
         data = pickle.dumps({'opcion': '7'})
 

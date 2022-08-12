@@ -1,4 +1,6 @@
 
+from cgi import print_arguments
+import email
 from slixmpp.xmlstream import ElementBase, ET, JID, register_stanza_plugin
 from slixmpp import Iq
 import socket
@@ -28,8 +30,8 @@ class EchoBot(slixmpp.ClientXMPP):
         self.add_event_handler("message", self.message)
         self.add_event_handler("deleteAccount", self.deleteAccount)
 
-        # For the register management
-        self.register_plugin("xep_0047", {"auto_accept": True})
+        # # For the register management
+        # self.register_plugin("xep_0047", {"auto_accept": True})
 
     async def start(self, event):
 
@@ -45,25 +47,6 @@ class EchoBot(slixmpp.ClientXMPP):
             result = 'Mensaje enviado exitosamente'
             # c.send(msg["body"].encode())
             # msg.reply("Thanks for sending\n%(body)s" % msg).send()
-
-    # Register management function using sleek exceptions
-    def register(self, iq):
-        serverResponse = self.Iq()
-        serverResponse["type"] = "set"
-        serverResponse["register"]["username"] = self.boundjid.user
-        serverResponse["register"]["password"] = self.password
-
-        try:
-            serverResponse.send(now=True)
-            logging.info("Account created!: %s!" % self.boundjid)
-        except IqError as e:
-            logging.error("It was imposible to create the account: %s" %
-                          e.iq["error"]["text"])
-            self.disconnect()
-        except IqTimeout:
-            logging.error(
-                "Server response took longer than wanted, try again.")
-            self.disconnect()
 
     # Delete account management function using sleek exceptions
 
@@ -82,16 +65,6 @@ class EchoBot(slixmpp.ClientXMPP):
         except IqTimeout:
             print('No response from server.')
             self.disconnect()
-
-
-def initialMenu():
-
-    print("-------------------------------------------------")
-    print("           Proyecto1!")
-    print("Enter the number of your choice:")
-    print("1. Log in")
-    print("2. Sign in")
-    print("-------------------------------------------------")
 
 
 if __name__ == '__main__':
@@ -131,6 +104,7 @@ if __name__ == '__main__':
     xmpp.register_plugin('xep_0199')  # XMPP Ping
     xmpp.register_plugin('xep_0100')  # XMPP Add contact
     xmpp.register_plugin('xep_0030')  # XMPP Delete account
+    # xmpp.register_plugin('xep_0256')
 
     # xmpp.connect()
     # xmpp.process(timeout=10)
@@ -196,14 +170,42 @@ if __name__ == '__main__':
 
         # Show other user information
         if (loggedIn_option == "5"):
-            xmpp.process()
-            xmpp.message()
+            contact = data['contact']
+            xmpp.process(timeout=20)
+
+            contacts = xmpp.client_roster
+
+            if contact in contacts:
+                print('Contacto existente!')
+                res = []
+                user = contacts[contact]
+                # res.append('Correo: ' + user['email'])
+                res.append('Correo:'+contact)
+                if contacts[contact]['name'] == '':
+                    res.append('Nickname:'+'Sin nickname')
+                else:
+                    res.append('Nickname:'+contacts[contact]['name'])
+
+                friends = contacts[contact]['subscription']
+                if friends == 'both':
+                    res.append('Suscripcion:'+'Amigo')
+                result = ' '.join(res)
+
+                c.send(result.encode())
+            else:
+                print('Contacto no existente!')
+                r = 'Contacto no existente!'
+                c.send(r.encode())
 
         # Set personal message
         if(loggedIn_option == "6"):
-            personal = input("Cual es tu mensaje personal: ")
-            status = input("Cual es tu nueo estado: ")
-            xmpp.makePresence(pfrom=xmpp.jid, pstatus=status, pshow=personal)
+
+            typeStatus = ("unavailable")
+            status = ("Llego a casa")
+            xmpp.send_presence(pshow=typeStatus, pstatus=status)
+            xmpp.process(timeout=20)
+            res = 'Status actualizado'
+            c.send(res.encode())
 
         # Log Off
         if(loggedIn_option == "7"):
