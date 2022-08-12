@@ -1,6 +1,8 @@
+import json
 
 from cgi import print_arguments
 import email
+from email import message
 from slixmpp.xmlstream import ElementBase, ET, JID, register_stanza_plugin
 from slixmpp import Iq
 import socket
@@ -44,6 +46,15 @@ class EchoBot(slixmpp.ClientXMPP):
             print("From: ", msg["from"])
             print("Subject: ", msg["subject"])
             print("Message: ", msg["body"])
+            message = ((str(msg["body"])))
+            user = ((str(msg["from"])))
+            userS = (user.split('/')[0])
+            l = []
+            with open("messages.txt", "a") as f:
+                l.append('user: '+userS)
+                l.append('message: '+message)
+                f.write((str(l)+'\n'))
+
             result = 'Mensaje enviado exitosamente'
             # c.send(msg["body"].encode())
             # msg.reply("Thanks for sending\n%(body)s" % msg).send()
@@ -219,5 +230,7 @@ if __name__ == '__main__':
             xmpp.deleteAccount()
             print("Account deleted")
             sys.exit()
+        if(loggedIn_option == "9"):
+            xmpp.process()
 
     c.close()
