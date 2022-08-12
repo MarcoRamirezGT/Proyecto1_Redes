@@ -44,13 +44,12 @@ while True:
         if loggedIn_option == '2':
             to = input('A quien desea enviarle mensaje:\n')
             msg = input('Mensaje (exit)>>> ')
-            while msg != 'exit':
 
-                data = pickle.dumps({'opcion': '2', 'to': to, 'msg': msg})
-                s.send(data)
-                msg = input('Mensaje (exit)>>> ')
+            data = pickle.dumps({'opcion': '2', 'to': to, 'msg': msg})
+            s.send(data)
+            # msg = input('Mensaje (exit)>>> ')
 
-            print("Mensaje enviado!\n")
+            # print("Mensaje enviado!\n")
 
         if loggedIn_option == '3':
             to = input('A quien deseas agregar:\n')

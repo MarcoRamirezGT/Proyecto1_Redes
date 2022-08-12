@@ -10,3 +10,5 @@
 ['user: ramram@alumchat.fun', 'message: d']
 ['user: ramram@alumchat.fun', 'message: d']
 ['user: ramram@alumchat.fun', 'message: hola']
+['user: ramram@alumchat.fun', 'message: d']
+['user: ramram@alumchat.fun', 'message: f']

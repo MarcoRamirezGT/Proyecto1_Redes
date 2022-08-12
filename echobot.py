@@ -155,14 +155,15 @@ if __name__ == '__main__':
             c.send(result.encode())
 
         if(loggedIn_option == "2"):
-            xmpp.process(timeout=20)
+            xmpp.process(timeout=30)
             to = data['to']
             msg = data['msg']
             result = 'Mensaje enviado exitosamente'
-            c.send(result.encode())
 
             xmpp.send_message(mto=to, mbody=msg, mtype='chat')
-            xmpp.process(timeout=20)
+            xmpp.process(timeout=30)
+
+            c.send(result.encode())
 
         # Add a new users
         elif(loggedIn_option == "3"):
