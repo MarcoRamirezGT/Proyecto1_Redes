@@ -105,7 +105,15 @@ Install the requirements.txt file
    ```sh
    pip install -r requirements.txt
    ```
+3. Run main program
+   ```sh
+   python main.py
+   ```
 
+4. When the main console pass to server console run client program
+   ```sh
+   python client.py
+   ```
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
