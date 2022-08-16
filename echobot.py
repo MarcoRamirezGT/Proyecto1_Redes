@@ -1,15 +1,9 @@
-import json
 
-from cgi import print_arguments
-import email
-from email import message
-from slixmpp.xmlstream import ElementBase, ET, JID, register_stanza_plugin
-from slixmpp import Iq
+# Required Libraries
 import socket
 import pickle
 import sys
 from sleekxmpp.exceptions import IqError, IqTimeout
-#from slixmpp.exceptions import IqError, IqTimeout
 from getpass import getpass
 from argparse import ArgumentParser
 import logging
@@ -17,30 +11,31 @@ import asyncio
 
 import slixmpp
 
+# Global Variables for the EchoBot class (Error Handling Python version)
 asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
 class EchoBot(slixmpp.ClientXMPP):
-
+    # Class Constructor
     def __init__(self, jid, password):
         slixmpp.ClientXMPP.__init__(self, jid, password)
-
+        # Add the event handler for handling messages
         self.add_event_handler("session_start", self.start)
         self.add_event_handler("inicio", self.start)
-
         # For the users messages
         self.add_event_handler("message", self.message)
         self.add_event_handler("deleteAccount", self.deleteAccount)
 
-        # # For the register management
-        # self.register_plugin("xep_0047", {"auto_accept": True})
+    # Function for handling the session_start event
 
     async def start(self, event):
 
         self.send_presence()
         await self.get_roster()
+    # Function for handling the message event
 
     def message(self, msg):
+        # If the message is of type 'chat'
 
         if msg['type'] in ('chat', 'normal'):
             print("From: ", msg["from"])
@@ -56,11 +51,8 @@ class EchoBot(slixmpp.ClientXMPP):
                 f.write((str(l)+'\n'))
 
             result = 'Mensaje enviado exitosamente'
-            # c.send(msg["body"].encode())
-            # msg.reply("Thanks for sending\n%(body)s" % msg).send()
 
-    # Delete account management function using sleek exceptions
-
+    # Function for handling the deleteAccount event
     def deleteAccount(self):
         resp = self.Iq()
         resp['type'] = 'set'
@@ -79,9 +71,8 @@ class EchoBot(slixmpp.ClientXMPP):
 
 
 if __name__ == '__main__':
-
+    # Setup the command line arguments.
     parser = ArgumentParser(description=EchoBot.__doc__)
-
     # Output verbosity options.
     parser.add_argument("-q", "--quiet", help="set logging to ERROR",
                         action="store_const", dest="loglevel",
@@ -115,11 +106,9 @@ if __name__ == '__main__':
     xmpp.register_plugin('xep_0199')  # XMPP Ping
     xmpp.register_plugin('xep_0100')  # XMPP Add contact
     xmpp.register_plugin('xep_0030')  # XMPP Delete account
-    # xmpp.register_plugin('xep_0256')
 
-    # xmpp.connect()
-    # xmpp.process(timeout=10)
-
+    # Connect to the XMPP server and start processing XMPP stanzas.
+    # Use sockets to send data to the server/client and receive data from the server/client.
     s = socket.socket()
     port = 12345
 
@@ -130,7 +119,7 @@ if __name__ == '__main__':
     while True:
 
         xmpp.connect()
-
+        # Recv data from the client
         info = c.recv(1024)
         data = pickle.loads(info)
 
@@ -138,6 +127,7 @@ if __name__ == '__main__':
 
         print("Recibido: ", data)
         xmpp.process(timeout=20)
+        # Show contacts
         if(loggedIn_option == "1"):
             xmpp.process(timeout=20)
             print("\nContactos:\n")
@@ -154,6 +144,7 @@ if __name__ == '__main__':
             result = ' '.join(resu)
             c.send(result.encode())
 
+        # Send private message to a contact
         if(loggedIn_option == "2"):
             xmpp.process(timeout=30)
             to = data['to']
@@ -178,7 +169,7 @@ if __name__ == '__main__':
 
         # # Send a group message
         # elif(loggedIn_option == "4"):
-        #     print("Option not implemented in this version")
+        #     print("Mensaje grupal")
 
         # Show other user information
         if (loggedIn_option == "5"):
@@ -191,7 +182,7 @@ if __name__ == '__main__':
                 print('Contacto existente!')
                 res = []
                 user = contacts[contact]
-                # res.append('Correo: ' + user['email'])
+
                 res.append('Correo:'+contact)
                 if contacts[contact]['name'] == '':
                     res.append('Nickname:'+'Sin nickname')

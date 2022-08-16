@@ -1,9 +1,11 @@
+# Required LIBRARIES
 import socket
 import pickle
 import sys
 import filecmp
 import shutil
 import shutil
+
 
 s = socket.socket()
 
@@ -25,7 +27,7 @@ port = 12345
 
 s.connect(('127.0.0.1', port))
 
-
+# Recv/Send data from the client
 while True:
     original = './messages.txt'
     copy = './messages_copy.txt'
@@ -34,13 +36,14 @@ while True:
     if result == True:
         userMenu()
         loggedIn_option = input("\nQue quieres hacer?: ")
+        # Show contacts
         if loggedIn_option == '1':
             data = pickle.dumps({'opcion': '1'})
 
             s.send(data)
             print('\n')
             print("Lista de usuarios:", s.recv(1024).decode(), '\n')
-
+        # Send private message to a contact
         if loggedIn_option == '2':
             to = input('A quien desea enviarle mensaje:\n')
             msg = input('Mensaje (exit)>>> ')
@@ -50,25 +53,26 @@ while True:
             # msg = input('Mensaje (exit)>>> ')
 
             # print("Mensaje enviado!\n")
-
+        # Add a new users
         if loggedIn_option == '3':
             to = input('A quien deseas agregar:\n')
             data = pickle.dumps({'opcion': '3', 'to': to})
             s.send(data)
 
             print("Usuario agregado!\n")
+        # Contact info
         if loggedIn_option == '5':
             contact = input('Cual contacto deseas ver:\n')
             data = pickle.dumps({'opcion': '5', 'contact': contact})
             s.send(data)
             print("\nDatos del contacto:\n", s.recv(1024).decode(), '\n')
-
+        # Change status
         if loggedIn_option == '6':
             op = input('A cual estado deseas cambiar:\n')
             data = pickle.dumps({'opcion': '6'})
             s.send(data)
             print(s.recv(1024).decode(), '\n')
-
+        # Close session
         if loggedIn_option == '7':
             data = pickle.dumps({'opcion': '7'})
 
@@ -78,6 +82,7 @@ while True:
             except:
                 print('Se ha cerrado sesion\n')
                 sys.exit()
+        # Delete account
         if loggedIn_option == '8':
             data = pickle.dumps({'opcion': '8'})
             try:
@@ -86,6 +91,7 @@ while True:
             except:
                 print('Se ha borrado la cuenta\n')
                 sys.exit()
+
         if loggedIn_option == '9':
             data = pickle.dumps({'opcion': '9'})
 

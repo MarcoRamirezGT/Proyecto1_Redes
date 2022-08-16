@@ -1,15 +1,11 @@
-import py_compile
-import sys
+# Libraries
 import subprocess
-import os
 
 from getpass import getpass
 from slixmpp.clientxmpp import ClientXMPP
 import xmpp
-from xmpp import debug
-import logging
-import slixmpp
-from slixmpp.exceptions import IqError, IqTimeout
+
+# Create user function
 
 
 def createUser():
