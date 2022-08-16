@@ -68,8 +68,9 @@ while True:
             print("\nDatos del contacto:\n", s.recv(1024).decode(), '\n')
         # Change status
         if loggedIn_option == '6':
-            op = input('A cual estado deseas cambiar:\n')
-            data = pickle.dumps({'opcion': '6'})
+            # op = input('A cual estado deseas cambiar:\n')
+            status = input('Cual es el estado:\n')
+            data = pickle.dumps({'opcion': '6', 'status': status})
             s.send(data)
             print(s.recv(1024).decode(), '\n')
         # Close session
@@ -101,7 +102,6 @@ while True:
 
                 text = input('Escribe el mensaje que deseas enviar:\n')
     if result == False:
-        print('False')
 
         f = open(original, 'r')
         d = open(copy, 'w')

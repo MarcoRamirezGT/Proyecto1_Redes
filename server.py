@@ -15,7 +15,7 @@ import slixmpp
 asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
-class EchoBot(slixmpp.ClientXMPP):
+class Server(slixmpp.ClientXMPP):
     # Class Constructor
     def __init__(self, jid, password):
         slixmpp.ClientXMPP.__init__(self, jid, password)
@@ -72,7 +72,7 @@ class EchoBot(slixmpp.ClientXMPP):
 
 if __name__ == '__main__':
     # Setup the command line arguments.
-    parser = ArgumentParser(description=EchoBot.__doc__)
+    parser = ArgumentParser(description=Server.__doc__)
     # Output verbosity options.
     parser.add_argument("-q", "--quiet", help="set logging to ERROR",
                         action="store_const", dest="loglevel",
@@ -98,7 +98,7 @@ if __name__ == '__main__':
     if args.password is None:
         args.password = getpass("Password: ")
 
-    xmpp = EchoBot(args.jid, args.password)
+    xmpp = Server(args.jid, args.password)
 
     xmpp.register_plugin('xep_0030')  # Service Discovery
     xmpp.register_plugin('xep_0004')  # Data Forms
@@ -202,9 +202,9 @@ if __name__ == '__main__':
 
         # Set personal message
         if(loggedIn_option == "6"):
+            status = data['status']
+            typeStatus = ("available")
 
-            typeStatus = ("unavailable")
-            status = ("Llego a casa")
             xmpp.send_presence(pshow=typeStatus, pstatus=status)
             xmpp.process(timeout=20)
             res = 'Status actualizado'
@@ -212,7 +212,11 @@ if __name__ == '__main__':
 
         # Log Off
         if(loggedIn_option == "7"):
+            xmpp.process(timeout=20)
+
             xmpp.disconnect()
+            xmpp.process(timeout=20)
+
             print("Logged Off")
 
             sys.exit()
@@ -221,7 +225,7 @@ if __name__ == '__main__':
         elif(loggedIn_option == "8"):
             xmpp.deleteAccount()
             print("Account deleted")
-            sys.exit()
+
         if(loggedIn_option == "9"):
             xmpp.process()
 

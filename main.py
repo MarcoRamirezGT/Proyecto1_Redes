@@ -12,7 +12,7 @@ def createUser():
     print(' ')
     print('Crear un usuario: ')
     new_user = input('username@alumchat.fun:  ')
-    new_password = input('password:  ')
+    new_password = getpass('password:  ')
     user = new_user
     password = new_password
     jid = xmpp.JID(user)
@@ -26,7 +26,7 @@ def createUser():
         return False
 
 
-cmd = 'python echobot.py -d -j'
+cmd = 'python server.py -d -j'
 
 menu = True
 while menu is True:
