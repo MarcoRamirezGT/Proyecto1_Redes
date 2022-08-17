@@ -74,8 +74,7 @@ Simple chat using Python and XMPP protocol.
 ### Built With
 
 * Slixmpp
-* sleekxmpp
-* Sockets
+* Python
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
