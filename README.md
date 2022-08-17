@@ -52,7 +52,7 @@
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
-    <li><a href="#features">features</a></li>
+    <li><a href="#features">Features</a></li>
     <li><a href="#references">References</a></li>
     <li><a href="#contact">Contact</a></li>
    
